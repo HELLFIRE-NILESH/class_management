@@ -1,10 +1,17 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'firebase_options.dart';
 import 'pages/home_page.dart';
 import 'theme file/themeData.dart';
 
-void main() {
+Future<void> main() async {
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 
@@ -59,12 +66,9 @@ class _MyAppState extends State<MyApp> {
       darkTheme: Mytheme.darktheme,
       theme: Mytheme.lighttheme,
       debugShowCheckedModeBanner: false,
-      routes: {
-        "/": (context) => HomePage(
-          themeMode: _themeMode,
-          onToggleTheme: _toggleTheme,
-        ),
-      },
+     routes: {
+        "/":(context) => HomePage(themeMode: _themeMode, onToggleTheme:_toggleTheme)
+     },
     );
   }
 }

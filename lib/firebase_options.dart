@@ -41,48 +41,49 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDx-H45J4Ygf7MoZW7tNoQP3DV0DTdpURA',
-    appId: '1:501806345297:web:b5221c6c7134b285dbdc70',
-    messagingSenderId: '501806345297',
-    projectId: 'crafter-code',
-    authDomain: 'crafter-code.firebaseapp.com',
-    storageBucket: 'crafter-code.appspot.com',
-    measurementId: 'G-X1GW4S7RRG',
+    apiKey: 'AIzaSyBTxgmw_yckteDiwvFSC7wPxxeZ4biImsg',
+    appId: '1:102008231057:web:403d8e7f59ec08379a1b30',
+    messagingSenderId: '102008231057',
+    projectId: 'class-management-64193',
+    authDomain: 'class-management-64193.firebaseapp.com',
+    storageBucket: 'class-management-64193.appspot.com',
+    measurementId: 'G-Q6KL47W8D4',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyB8b3V5YIB6OkkMUseqAcrTd2rZmQLnmWY',
-    appId: '1:501806345297:android:a27ff4b134d7a871dbdc70',
-    messagingSenderId: '501806345297',
-    projectId: 'crafter-code',
-    storageBucket: 'crafter-code.appspot.com',
+    apiKey: 'AIzaSyD0BZyrmljsIqz-J2JRZV_Mtjken8JIsH8',
+    appId: '1:102008231057:android:d27ff2accc08d0079a1b30',
+    messagingSenderId: '102008231057',
+    projectId: 'class-management-64193',
+    storageBucket: 'class-management-64193.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBb2n_-AR8-d7lnNjFneJ5yXuY7ee_xSFc',
-    appId: '1:501806345297:ios:4e74af6293dd9594dbdc70',
-    messagingSenderId: '501806345297',
-    projectId: 'crafter-code',
-    storageBucket: 'crafter-code.appspot.com',
-    iosBundleId: 'com.example.crafterCode',
+    apiKey: 'AIzaSyBwA2XuSpjH8K7iuJJC53aooBmqKE_8eCU',
+    appId: '1:102008231057:ios:918a3c9a49d3841f9a1b30',
+    messagingSenderId: '102008231057',
+    projectId: 'class-management-64193',
+    storageBucket: 'class-management-64193.appspot.com',
+    iosBundleId: 'com.example.classManagement',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyBb2n_-AR8-d7lnNjFneJ5yXuY7ee_xSFc',
-    appId: '1:501806345297:ios:4e74af6293dd9594dbdc70',
-    messagingSenderId: '501806345297',
-    projectId: 'crafter-code',
-    storageBucket: 'crafter-code.appspot.com',
-    iosBundleId: 'com.example.crafterCode',
+    apiKey: 'AIzaSyBwA2XuSpjH8K7iuJJC53aooBmqKE_8eCU',
+    appId: '1:102008231057:ios:918a3c9a49d3841f9a1b30',
+    messagingSenderId: '102008231057',
+    projectId: 'class-management-64193',
+    storageBucket: 'class-management-64193.appspot.com',
+    iosBundleId: 'com.example.classManagement',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyDx-H45J4Ygf7MoZW7tNoQP3DV0DTdpURA',
-    appId: '1:501806345297:web:7af232ec2e6df2b2dbdc70',
-    messagingSenderId: '501806345297',
-    projectId: 'crafter-code',
-    authDomain: 'crafter-code.firebaseapp.com',
-    storageBucket: 'crafter-code.appspot.com',
-    measurementId: 'G-KNKYBPXH32',
+    apiKey: 'AIzaSyBTxgmw_yckteDiwvFSC7wPxxeZ4biImsg',
+    appId: '1:102008231057:web:5b66a77d0c06bd9f9a1b30',
+    messagingSenderId: '102008231057',
+    projectId: 'class-management-64193',
+    authDomain: 'class-management-64193.firebaseapp.com',
+    storageBucket: 'class-management-64193.appspot.com',
+    measurementId: 'G-QZS4FWTXN5',
   );
+
 }
