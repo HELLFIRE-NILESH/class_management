@@ -20,6 +20,7 @@ class UserContainer extends StatefulWidget {
 }
 
 class _UserContainerState extends State<UserContainer> {
+
   late Future<DocumentSnapshot> userDocument;
 
   @override
@@ -28,13 +29,16 @@ class _UserContainerState extends State<UserContainer> {
     final User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       userDocument = FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+
     } else {
       userDocument = Future.error('No user is signed in.');
     }
+
   }
 
   @override
   Widget build(BuildContext context) {
+
     return FutureBuilder<DocumentSnapshot>(
       future: userDocument,
       builder: (context, snapshot) {
@@ -69,9 +73,9 @@ class _UserContainerState extends State<UserContainer> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const SizedBox(height: 10),
-                    const CircleAvatar(
+                     CircleAvatar(
                       radius: 32,
-                      backgroundImage: AssetImage("assets/images/pfp.jpg"),
+                      backgroundImage: NetworkImage(data["profilePic"]),
                     ),
                     const SizedBox(height: 14),
                     Text(data['name'], style: Theme.of(context).textTheme.bodyLarge),

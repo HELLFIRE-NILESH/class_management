@@ -6,6 +6,7 @@ import 'pageView/chatView.dart';
 import 'pageView/notesView.dart';
 
 class HomePage extends StatefulWidget {
+
   final ThemeMode themeMode;
   final VoidCallback onToggleTheme;
 
@@ -19,6 +20,7 @@ class _HomePageState extends State<HomePage> {
   late PageController _pageController;
   int _selectedIndex = 0;
   bool _isSidebarExpanded = false;
+
 
   @override
   void initState() {
@@ -61,6 +63,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+
     bool isDarkMode = widget.themeMode == ThemeMode.dark;
 
     double screenWidth = MediaQuery.of(context).size.width;

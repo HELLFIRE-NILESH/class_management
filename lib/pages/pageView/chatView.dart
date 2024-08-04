@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -33,6 +34,8 @@ class _ChatViewState extends State<ChatView> {
                 recipientUid: recipientUid,
                 recipientName: recipientName,
                 currentUserId: currentUser.uid,
+                profilePic: userSnapshot["profilePic"],
+
               ),
             ),
           );
@@ -117,19 +120,12 @@ class _ChatViewState extends State<ChatView> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  user['name'],
-                                  style: chatTextStyle,
-                                ),
-                                if (unreadMessages > 0)
-                                  Container(
-                                    width: 10,
-                                    height: 10,
-                                    decoration: BoxDecoration(
-                                      color: Colors.red,
-                                      shape: BoxShape.circle,
-                                    ),
+                                Expanded(
+                                  child: Text(
+                                    user['name'],
+                                    style: chatTextStyle,
                                   ),
+                                ),
                               ],
                             ),
                           ),

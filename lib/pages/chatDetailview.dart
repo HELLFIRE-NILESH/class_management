@@ -1,14 +1,18 @@
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:intl/intl.dart'; // For date formatting
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
+import 'package:blur/blur.dart'; // For blur effect
 
 class ChatDetailView extends StatefulWidget {
   final String recipientUid;
   final String recipientName;
   final String currentUserId;
   final bool isDarkMode;
+  final String profilePic;
 
   const ChatDetailView({
     super.key,
@@ -16,6 +20,7 @@ class ChatDetailView extends StatefulWidget {
     required this.currentUserId,
     required this.recipientName,
     required this.isDarkMode,
+    required this.profilePic,
   });
 
   @override
@@ -26,7 +31,6 @@ class _ChatDetailViewState extends State<ChatDetailView> {
   final TextEditingController _messageController = TextEditingController();
   final DatabaseReference _database = FirebaseDatabase.instance.ref();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   final ScrollController _scrollController = ScrollController();
 
   String get _chatId {
@@ -39,7 +43,9 @@ class _ChatDetailViewState extends State<ChatDetailView> {
     if (_messageController.text.isNotEmpty) {
       final message = {
         'text': _messageController.text,
-        'createdAt': DateTime.now().millisecondsSinceEpoch,
+        'createdAt': DateTime
+            .now()
+            .millisecondsSinceEpoch,
         'userId': widget.currentUserId,
         'isRead': false,
       };
@@ -52,12 +58,6 @@ class _ChatDetailViewState extends State<ChatDetailView> {
 
   Future<void> _updateUnreadCount() async {
     try {
-      final recipientDoc = await _firestore.collection('users').doc(widget.recipientUid).get();
-      final recipientData = recipientDoc.data() as Map<String, dynamic>?;
-
-      int currentUnreadMessages = recipientData?['unreadMessages'] ?? 0;
-      if (currentUnreadMessages < 0) currentUnreadMessages = 0;
-
       await _firestore.collection('users').doc(widget.recipientUid).update({
         'unreadMessages': FieldValue.increment(1),
       });
@@ -67,40 +67,28 @@ class _ChatDetailViewState extends State<ChatDetailView> {
   }
 
   Future<void> _markMessagesAsRead() async {
-    final currentUser = _auth.currentUser;
-    if (currentUser != null) {
-      try {
-        final messagesSnapshot = await _database.child('chats/$_chatId/messages')
-            .orderByChild('isRead')
-            .equalTo(false)
-            .once();
+    try {
+      final messagesSnapshot = await _database
+          .child('chats/$_chatId/messages')
+          .orderByChild('isRead')
+          .equalTo(false)
+          .once();
 
-        final messages = messagesSnapshot.snapshot.value as Map?;
-        if (messages != null) {
-          bool hasUnreadMessages = false;
-
-          for (var key in messages.keys) {
-            if (messages[key]['userId'] == widget.recipientUid) {
-              hasUnreadMessages = true;
-              await _database.child('chats/$_chatId/messages/$key').update({'isRead': true});
-            }
-          }
-
-          if (hasUnreadMessages) {
-            final recipientDoc = await _firestore.collection('users').doc(widget.recipientUid).get();
-            final recipientData = recipientDoc.data() as Map<String, dynamic>?;
-
-            int currentUnreadMessages = recipientData?['unreadMessages'] ?? 0;
-            if (currentUnreadMessages > 0) {
-              await _firestore.collection('users').doc(widget.recipientUid).update({
-                'unreadMessages': FieldValue.increment(-1),
-              });
-            }
+      final messages = messagesSnapshot.snapshot.value as Map?;
+      if (messages != null) {
+        for (var key in messages.keys) {
+          if (messages[key]['userId'] == widget.recipientUid) {
+            await _database.child('chats/$_chatId/messages/$key').update(
+                {'isRead': true});
           }
         }
-      } catch (e) {
-        print('Error marking messages as read: $e');
+
+        await _firestore.collection('users').doc(widget.recipientUid).update({
+          'unreadMessages': FieldValue.increment(-1),
+        });
       }
+    } catch (e) {
+      print('Error marking messages as read: $e');
     }
   }
 
@@ -111,7 +99,8 @@ class _ChatDetailViewState extends State<ChatDetailView> {
   }
 
   String _formatTimestamp(int millisecondsSinceEpoch) {
-    final dateTime = DateTime.fromMillisecondsSinceEpoch(millisecondsSinceEpoch);
+    final dateTime = DateTime.fromMillisecondsSinceEpoch(
+        millisecondsSinceEpoch);
     final now = DateTime.now();
     final difference = now.difference(dateTime);
 
@@ -126,144 +115,227 @@ class _ChatDetailViewState extends State<ChatDetailView> {
     }
   }
 
+  void _showAvatarDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) =>
+          Dialog(
+            backgroundColor: Colors.transparent,
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: GestureDetector(
+                      onTap: () => Navigator.of(context).pop(),
+                      child: Container(
+                      )
+                  ),
+                ),
+                Center(
+                  child: Hero(
+                    tag: 'profilePic',
+                    child: CircleAvatar(
+                      radius: 100,
+                      backgroundImage: NetworkImage(widget.profilePic),
+                    ),
+
+                  ),
+                ),
+              ],
+            ),
+          ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final backgroundColor = widget.isDarkMode ? Colors.black : Colors.white;
-    final messageColorSent = widget.isDarkMode ? const Color(0xFFBD76FD) : const Color(0xFFDCC4FF);
-    final messageColorReceived = widget.isDarkMode ? const Color(0xffe8e8e8) : const Color(0xFFBD76FD);
+    final backgroundColor = widget.isDarkMode ? Colors.black : Color(
+        0xFFBD76FD);
+    final messageColor = widget.isDarkMode ? const Color(0xFFBD76FD) : Color(
+        0xffffffff);
     final textColorSent = widget.isDarkMode ? Colors.white : Colors.black;
-    final textColorReceived = widget.isDarkMode ? Colors.black : Colors.black87;
-    final inputFieldColor = widget.isDarkMode ? Colors.grey[800] : Colors.grey[200];
+
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Chat with ${widget.recipientName}', style: TextStyle(color: widget.isDarkMode ? Colors.white : Colors.black)),
-        backgroundColor: widget.isDarkMode ? Colors.black : Colors.purple[300],
+        automaticallyImplyLeading: false,
+        title: Row(
+          children: [
+            GestureDetector(
+              onTap: () => _showAvatarDialog(context),
+              child: Hero(
+                tag: 'profilePic',
+                child: CircleAvatar(
+                  backgroundImage: NetworkImage(widget.profilePic),
+                  radius: 22,
+                ),
+              ),
+            ),
+            SizedBox(width: 10),
+            Text(widget.recipientName, style: Theme
+                .of(context)
+                .textTheme
+                .bodyLarge,
+            ),
+          ],
+        ),
+        backgroundColor: widget.isDarkMode ? Colors.black : Color(0xFFBD76FD),
       ),
       backgroundColor: backgroundColor,
       body: Column(
-          children: [
-      Expanded(
-      child: StreamBuilder<DatabaseEvent>(
-          stream: _database.child('chats/$_chatId/messages').orderByChild('createdAt').onValue,
-      builder: (ctx, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        }
-        if (!snapshot.hasData || snapshot.data!.snapshot.value == null) {
-          return Center(child: Text('No messages yet.', style: TextStyle(color: widget.isDarkMode ? Colors.white : Colors.black)));
-        }
-
-        final messages = Map<String, dynamic>.from(snapshot.data!.snapshot.value as Map);
-        final sortedMessages = messages.entries.toList()
-          ..sort((a, b) => a.value['createdAt'].compareTo(b.value['createdAt']));
-
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
-        });
-
-        return ListView.builder(
-          controller: _scrollController,
-          itemCount: sortedMessages.length,
-          itemBuilder: (ctx, index) {
-            final messageData = sortedMessages[index].value;
-            final isSentByCurrentUser = messageData['userId'] == widget.currentUserId;
-            final isRead = messageData['isRead'] ?? false;
-
-            return Align(
-              alignment: isSentByCurrentUser ? Alignment.centerRight : Alignment.centerLeft,
-              child: Container(
-                padding: EdgeInsets.all(12),
-                margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                decoration: BoxDecoration(
-                  color: isSentByCurrentUser ? messageColorSent : messageColorReceived,
-                  borderRadius: BorderRadius.circular(15),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      spreadRadius: 1,
-                      blurRadius: 5,
-                      offset: Offset(0, 2),
+        children: [
+          SizedBox(height: 8), // Add spacing here
+          Expanded(
+            child: StreamBuilder<DatabaseEvent>(
+              stream: _database
+                  .child('chats/$_chatId/messages')
+                  .orderByChild('createdAt')
+                  .onValue,
+              builder: (ctx, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                }
+                if (!snapshot.hasData ||
+                    snapshot.data!.snapshot.value == null) {
+                  return Center(
+                    child: Text(
+                      'No messages yet.',
+                      style: TextStyle(
+                          color: widget.isDarkMode ? Colors.white : Colors
+                              .black),
                     ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (!isSentByCurrentUser)
-                      CircleAvatar(
-                        backgroundColor: messageColorReceived,
-                        child: Text(widget.recipientName[0], style: TextStyle(color: Colors.white)),
-                      ),
-                    SizedBox(width: 8),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: isSentByCurrentUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            messageData['text'],
-                            style: TextStyle(color: textColorSent),
+                  );
+                }
+
+                final messages = Map<String, dynamic>.from(
+                    snapshot.data!.snapshot.value as Map);
+                final sortedMessages = messages.entries.toList()
+                  ..sort((a, b) =>
+                      a.value['createdAt'].compareTo(b.value['createdAt']));
+
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  _scrollController.jumpTo(
+                      _scrollController.position.maxScrollExtent);
+                });
+
+                return ListView.builder(
+                  controller: _scrollController,
+                  itemCount: sortedMessages.length,
+                  itemBuilder: (ctx, index) {
+                    final messageData = sortedMessages[index].value;
+                    final isSentByCurrentUser = messageData['userId'] ==
+                        widget.currentUserId;
+
+                    return Align(
+                      alignment: isSentByCurrentUser
+                          ? Alignment.centerRight
+                          : Alignment.centerLeft,
+                      child: IntrinsicWidth(
+                        child: Container(
+                          constraints: BoxConstraints(
+                            maxWidth: MediaQuery
+                                .of(context)
+                                .size
+                                .width * 0.75,
+                            minWidth: 50.0,
                           ),
-                          SizedBox(height: 5),
-                          Text(
-                            _formatTimestamp(messageData['createdAt']),
-                            style: TextStyle(color: textColorSent.withOpacity(0.7), fontSize: 12),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 8),
+                          margin: EdgeInsets.symmetric(
+                              vertical: 5, horizontal: 10),
+                          decoration: BoxDecoration(
+                            color: messageColor,
+                            borderRadius: BorderRadius.circular(15),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                spreadRadius: 1,
+                                blurRadius: 5,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    ),
-                    if (isSentByCurrentUser)
-                      Padding(
-                        padding: EdgeInsets.only(left: 8.0),
-                        child: Icon(
-                          isRead ? Icons.check_circle : Icons.check_circle_outline,
-                          color: Colors.white,
-                          size: 20,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                    messageData['text'],
+                                    maxLines: null,
+                                    style: TextStyle(
+                                        fontFamily: widget.isDarkMode
+                                            ? GoogleFonts
+                                            .playfairDisplay()
+                                            .fontFamily : GoogleFonts
+                                            .satisfy()
+                                            .fontFamily,
+                                        letterSpacing: 1,
+                                        fontSize: 20,
+                                        color: textColorSent
+                                    )
+
+                                ),
+                              ),
+                              SizedBox(width: 8),
+
+                              Text(
+                                _formatTimestamp(messageData['createdAt']),
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: textColorSent.withOpacity(0.7),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                  ],
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: TextField(
+                      controller: _messageController,
+                      maxLines: null,
+                      textInputAction: TextInputAction.newline,
+                      keyboardType: TextInputType.multiline,
+                      decoration: InputDecoration(
+                        contentPadding: EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
+                        hintText: 'Send a message...',
+                        hintStyle: TextStyle(
+                          color: widget.isDarkMode ? Colors.white54 : Colors
+                              .black54,
+                        ),
+                      ),
+                      style: TextStyle(
+                        color: widget.isDarkMode ? Colors.white : Colors.black,
+                        fontSize: 20
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            );
-          },
-        );
-      },
-    ),
-    ),
-    Padding(
-    padding: const EdgeInsets.all(8.0),
-    child: Row(
-    children: [
-    Expanded(
-    child: Container(
-    decoration: BoxDecoration(
-    color: inputFieldColor,
-    borderRadius: BorderRadius.circular(5), // Normal corners
-    ),
-    child: TextField(
-    controller: _messageController,
-    decoration: InputDecoration(
-    contentPadding: EdgeInsets.symmetric(horizontal: 16,
-        vertical: 12),
-      border: InputBorder.none, // Remove border
-      hintText: 'Send a message...',
-      hintStyle: TextStyle(color: widget.isDarkMode ? Colors.white54 : Colors.black54),
-    ),
-      style: TextStyle(color: widget.isDarkMode ? Colors.white : Colors.black),
-    ),
-    ),
-    ),
-      SizedBox(width: 8),
-      FloatingActionButton(
-        backgroundColor: widget.isDarkMode ? Colors.white : Colors.purple[300],
-        child: Icon(Icons.send, color: Colors.black),
-        onPressed: _sendMessage,
-      ),
-    ],
-    ),
-    ),
-            SizedBox(height: 10),
-          ],
+                SizedBox(width: 8),
+                FloatingActionButton(
+                  backgroundColor: widget.isDarkMode ? Colors.white : Color(
+                      0xFFD2ACF8),
+                  child: Icon(Icons.send, color: Colors.black),
+                  onPressed: _sendMessage,
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 10),
+        ],
       ),
     );
   }

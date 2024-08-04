@@ -27,3 +27,5 @@ class searchBar extends StatelessWidget {
   }
 }
 themeMode: _themeMode, onToggleTheme:_toggleTheme
+  textInputAction: TextInputAction.newline, // Allow new lines on Enter
+                      keyboardType: TextInputType.multiline,
