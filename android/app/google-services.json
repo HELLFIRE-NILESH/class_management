@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "102008231057",
+    "firebase_url": "https://class-management-64193-default-rtdb.asia-southeast1.firebasedatabase.app",
     "project_id": "class-management-64193",
     "storage_bucket": "class-management-64193.appspot.com"
   },
@@ -12,7 +13,20 @@
           "package_name": "com.example.class_management"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "102008231057-p6j8n7e6ds2f27glgrimkaqtsalk0m8u.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.class_management",
+            "certificate_hash": "2ef582403e02f284b7f3a9a4f8f632c7cbe7c7aa"
+          }
+        },
+        {
+          "client_id": "102008231057-5ck4s8nble4cj8vrqdp0758rhk80qno8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyD0BZyrmljsIqz-J2JRZV_Mtjken8JIsH8"
@@ -20,7 +34,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "102008231057-5ck4s8nble4cj8vrqdp0758rhk80qno8.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "102008231057-a35ufcu3qkhuropahtda9phsb08imd53.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.classManagement"
+              }
+            }
+          ]
         }
       }
     }

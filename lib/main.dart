@@ -1,3 +1,5 @@
+import 'package:class_management/pages/loginPage.dart';
+import 'package:class_management/auth/firebaseAuth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -24,6 +26,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   ThemeMode _themeMode = ThemeMode.dark; // Set default theme to dark
+  final AuthService _authService = AuthService();
 
   @override
   void initState() {
@@ -66,9 +69,13 @@ class _MyAppState extends State<MyApp> {
       darkTheme: Mytheme.darktheme,
       theme: Mytheme.lighttheme,
       debugShowCheckedModeBanner: false,
-     routes: {
-        "/":(context) => HomePage(themeMode: _themeMode, onToggleTheme:_toggleTheme)
-     },
+      routes: {
+        "/login": (context) => loginPage(themeMode: _themeMode, onToggleTheme: _toggleTheme),
+        "/homepage": (context) => HomePage(themeMode: _themeMode, onToggleTheme: _toggleTheme),
+      },
+      home: _authService.getCurrentUser() != null
+          ? HomePage(themeMode: _themeMode, onToggleTheme: _toggleTheme)
+          : loginPage(themeMode: _themeMode, onToggleTheme: _toggleTheme),
     );
   }
 }
